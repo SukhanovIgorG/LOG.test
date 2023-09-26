@@ -14,12 +14,15 @@ export class AuthController {
   ) {}
 
   @Post('login')
-  async login(
-    @Body() { login, password }: AuthLoginDto,
-    @Req() request: Request,
-  ) {
+  async login(@Body() dto: AuthLoginDto) {
+    const { login, password } = dto;
+    console.log('dto :>> ', dto);
     const user = await this.userService.findOneByLogin(login);
-    if (user.password === password) {
+    console.log('user :>> ', user);
+    if (user?.password === password) {
+      return { status: 200 };
+    } else {
+      return { status: 401 };
     }
     const sessions = await this.sessionsService.create({
       agent: 'IOS',
@@ -31,7 +34,8 @@ export class AuthController {
 
   @Post('registrations')
   async registrations(@Body() dto: CreateUserDto) {
-    const newUser = this.userService.create(dto);
-    // if (newUser) this.login(dto);
+    const { login, password } = dto;
+    const res = this.userService.create(dto);
+    if (res) this.login({ login, password });
   }
 }

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { DataSource } from 'typeorm';
 import { SessionsModule } from './sessions/sessions.module';
+import * as bodyParser from 'body-parser';
 
 @Module({
   imports: [
@@ -32,4 +33,9 @@ import { SessionsModule } from './sessions/sessions.module';
 })
 export class AppModule {
   constructor(private dataSource: DataSource) {}
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(bodyParser.json())
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
+  }
 }
